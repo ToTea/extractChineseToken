@@ -5,7 +5,7 @@ function extractSLPs(doc, tftheshold, setheshold){
 	/**
 		extract term with frequency
 		@parm: string doc, string to extract terms
-		@return: [{"sistring": string, "frequency": float}] SLPs, extract terms
+		@return: {"vectorLength": float, "SLPs":[{"sistring": string, "frequency": float}]} SLPs, extract terms
 	*/
 	
 	// ***Caution the different caracters of enter between different os***
@@ -32,17 +32,25 @@ function extractSLPs(doc, tftheshold, setheshold){
 	tree.addDocument(doc);
 	var SLPs = tree.extractSLP(tftheshold, setheshold);
 	var newSLPs = []
+	var count = 0
+	var vectorLength = 0
 	for(var i =0; i < SLPs.length;i++){
 		//word length > 1
 		if(SLPs[i].sistring.length > 1){
 			// not stopword
 			if(stopword.indexOf(SLPs[i].sistring) == -1){
-				newSLPs.push(SLPs[i])
+				SLP = {"series": count, "sistring": SLPs[i].sistring, "frequency": SLPs[i].frequency};
+				count += 1;
+				vectorLength += Math.pow(SLPs[i].frequency, 2)
+				newSLPs.push(SLP);
 			}
 		}
 	}
-	SLPs = newSLPs;
-	return SLPs;
+	vectorLength = Math.sqrt(vectorLength)
+
+	var extractTokens = {"vectorLength": vectorLength, "SLPs": newSLPs};
+
+	return extractTokens;
 }
 
 //__main__
